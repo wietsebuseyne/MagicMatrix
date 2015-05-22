@@ -3,6 +3,7 @@ package whitetea.magicmatrix.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -13,6 +14,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
@@ -20,6 +23,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -37,10 +43,6 @@ import whitetea.magicmatrix.model.animation.CustomFramesAnimation;
 
 import com.bric.plaf.SimpleColorPaletteUI;
 import com.bric.swing.ColorPalette;
-
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 
 public class MagicMatrixFrame extends JFrame {
 
@@ -91,6 +93,7 @@ public class MagicMatrixFrame extends JFrame {
 						model.removeAllFrames();
 						int imgHeight = image.getHeight(),
 								imgWidth = image.getWidth();
+						List<Frame> frames = new ArrayList<>();
 						for(int r = 0; r < imgHeight; r += height) {
 							for(int c = 0; c < imgWidth; c += width) {
 								Frame frame = new Frame(height, width);
@@ -99,9 +102,10 @@ public class MagicMatrixFrame extends JFrame {
 										frame.setPixelColor(row, col, new Color(image.getRGB(col+c, row+r)));
 									}
 								}
-								model.addFrame(frame);
+								frames.add(frame);
 							}
 						}
+						model.addFrames(frames);
 						model.removeFrame(0);
 					} catch (IOException ex) {
 						ex.printStackTrace();
@@ -119,10 +123,13 @@ public class MagicMatrixFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public MagicMatrixFrame() {
+		setTitle("MagicMatrix\r\n");
 		model = new MagicMatrix(height, width);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1257, 648);
+		setSize(792, 662);
+		setMinimumSize(new Dimension(600, 475));
+		setLocationRelativeTo(null);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -165,48 +172,45 @@ public class MagicMatrixFrame extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[]{510, 167, 0};
-		gbl_contentPane.rowHeights = new int[]{510, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.columnWidths = new int[] {500, 250};
+		gbl_contentPane.rowHeights = new int[] {500, 0};
+		gbl_contentPane.columnWeights = new double[]{1.0, 0.0};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0};
 		contentPane.setLayout(gbl_contentPane);
 		
 		framePanel = new FramePanel(model);
 		GridBagConstraints gbc_framePanel = new GridBagConstraints();
+		gbc_framePanel.weighty = 1.0;
+		gbc_framePanel.weightx = 1.0;
 		gbc_framePanel.anchor = GridBagConstraints.NORTHWEST;
 		gbc_framePanel.insets = new Insets(0, 0, 5, 5);
 		gbc_framePanel.gridx = 0;
 		gbc_framePanel.gridy = 0;
 		contentPane.add(framePanel, gbc_framePanel);
 		
-		JPanel panel_1 = new JPanel();
-		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-		gbc_panel_1.insets = new Insets(0, 0, 5, 0);
-		gbc_panel_1.fill = GridBagConstraints.BOTH;
-		gbc_panel_1.gridx = 1;
-		gbc_panel_1.gridy = 0;
-		contentPane.add(panel_1, gbc_panel_1);
+		JPanel pnlConfigurations = new JPanel();
+		GridBagConstraints gbc_pnlConfigurations = new GridBagConstraints();
+		gbc_pnlConfigurations.fill = GridBagConstraints.BOTH;
+		gbc_pnlConfigurations.weighty = 1;
+		gbc_pnlConfigurations.gridx = 1;
+		gbc_pnlConfigurations.gridy = 0;
+		contentPane.add(pnlConfigurations, gbc_pnlConfigurations);
 		
-		ColorPalette colorPalette = new ColorPalette();
-		panel_1.add(colorPalette);
-		colorPalette.setUI(new SimpleColorPaletteUI());
-		colorPalette.addChangeListener(new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				model.setCurrentColor(colorPalette.getColor());
+		JPanel pnlControls = new JPanel();
+		
+		JButton btnNew = new JButton("Add");
+		btnNew.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				model.addFrame();
 			}
 		});
-		colorPalette.setColor(Color.RED);
-		
-		JPanel panel_2 = new JPanel();
-		panel_1.add(panel_2);
-		panel_2.setLayout(new GridLayout(1, 0, 0, 0));
+		pnlControls.setLayout(new GridLayout(7, 2, 0, 0));
 		
 		JLabel lblAnimation = new JLabel("Mode:");
-		panel_2.add(lblAnimation);
+		pnlControls.add(lblAnimation);
 		
 		JComboBox<AnimationType> comboBox = new JComboBox<AnimationType>();
+		pnlControls.add(comboBox);
 		comboBox.setModel(new DefaultComboBoxModel<AnimationType>(AnimationType.values()));
 		comboBox.addActionListener(new ActionListener() {
 			
@@ -217,17 +221,18 @@ public class MagicMatrixFrame extends JFrame {
 					model.stopAnimation();
 				else if(animation instanceof CustomFramesAnimation) { //TODO remove dirty fix for custom frames
 					((CustomFramesAnimation)animation).setFrames(model.getFrames());
+					((CustomFramesAnimation)animation).setStartFrame(model.getCurrentFrameIndex());
 					model.startAnimation(animation);
 				} else
 					model.startAnimation(animation);
 			}
 		});
-		panel_2.add(comboBox);
 		
 		JLabel lblSpeed = new JLabel("Interval:");
-		panel_1.add(lblSpeed);
+		pnlControls.add(lblSpeed);
 		
 		JSpinner spinner = new JSpinner();
+		pnlControls.add(spinner);
 		spinner.setModel(new SpinnerNumberModel(model.getAnimationSpeed(), new Long(1), null, new Long(50)));
 		spinner.addChangeListener(new ChangeListener() {
 			
@@ -236,37 +241,7 @@ public class MagicMatrixFrame extends JFrame {
 				model.setAnimationSpeed((Long)spinner.getValue());
 			}
 		});
-		panel_1.add(spinner);
-
-		FramePicker framePicker = new FramePicker(model);
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.insets = new Insets(0, 0, 0, 5);
-		gbc_scrollPane.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane.gridx = 0;
-		gbc_scrollPane.gridy = 1;
-		scrollPane.setPreferredSize(new Dimension((int)scrollPane.getPreferredSize().getWidth(), (int)(framePicker.getPreferredSize().getHeight() + scrollPane.getHorizontalScrollBar().getPreferredSize().getHeight())));
-		contentPane.add(scrollPane, gbc_scrollPane);
-		
-		scrollPane.setViewportView(framePicker);
-		//scrollPane.setPreferredSize(framePicker.getPreferredSize());
-		
-		JPanel panel = new JPanel();
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.fill = GridBagConstraints.BOTH;
-		gbc_panel.gridx = 1;
-		gbc_panel.gridy = 1;
-		contentPane.add(panel, gbc_panel);
-		
-		JButton btnNew = new JButton("Add");
-		btnNew.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				model.addFrame();
-			}
-		});
-		panel.add(btnNew);
+		pnlControls.add(btnNew);
 		
 		JButton btnRemove = new JButton("Delete");
 		btnRemove.addActionListener(new ActionListener() {
@@ -274,7 +249,7 @@ public class MagicMatrixFrame extends JFrame {
 				model.removeFrame();
 			}
 		});
-		panel.add(btnRemove);
+		pnlControls.add(btnRemove);
 		
 		JButton btnMoveleft = new JButton("\u2190");
 		btnMoveleft.addActionListener(new ActionListener() {
@@ -282,15 +257,6 @@ public class MagicMatrixFrame extends JFrame {
 				model.moveFrameLeft();
 			}
 		});
-		panel.add(btnMoveleft);
-		
-		JButton btnMoveright = new JButton("\u2192");
-		btnMoveright.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				model.moveFrameRight();
-			}
-		});
-		panel.add(btnMoveright);
 		
 		JButton btnCopy = new JButton("Copy");
 		btnCopy.addActionListener(new ActionListener() {
@@ -298,7 +264,19 @@ public class MagicMatrixFrame extends JFrame {
 				model.addCopy();
 			}
 		});
-		panel.add(btnCopy);
+		pnlControls.add(btnCopy);
+		
+		JPanel panel = new JPanel();
+		pnlControls.add(panel);
+		pnlControls.add(btnMoveleft);
+		
+		JButton btnMoveright = new JButton("\u2192");
+		btnMoveright.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				model.moveFrameRight();
+			}
+		});
+		pnlControls.add(btnMoveright);
 		
 		JButton btnShiftRight = new JButton("Shift Right");
 		btnShiftRight.addActionListener(new ActionListener() {
@@ -306,7 +284,7 @@ public class MagicMatrixFrame extends JFrame {
 				model.shiftRight();
 			}
 		});
-		panel.add(btnShiftRight);
+		pnlControls.add(btnShiftRight);
 		
 		JButton btnShiftLeft = new JButton("Shift Left");
 		btnShiftLeft.addActionListener(new ActionListener() {
@@ -314,7 +292,7 @@ public class MagicMatrixFrame extends JFrame {
 				model.shiftLeft();
 			}
 		});
-		panel.add(btnShiftLeft);
+		pnlControls.add(btnShiftLeft);
 		
 		JButton btnShiftUp = new JButton("Shift Up");
 		btnShiftUp.addActionListener(new ActionListener() {
@@ -322,7 +300,7 @@ public class MagicMatrixFrame extends JFrame {
 				model.shiftUp();
 			}
 		});
-		panel.add(btnShiftUp);
+		pnlControls.add(btnShiftUp);
 		
 		JButton btnShiftDown = new JButton("Shift Down");
 		btnShiftDown.addActionListener(new ActionListener() {
@@ -330,7 +308,41 @@ public class MagicMatrixFrame extends JFrame {
 				model.shiftDown();
 			}
 		});
-		panel.add(btnShiftDown);
+		pnlControls.add(btnShiftDown);
+		
+		JPanel pnlAnimation = new JPanel();
+		pnlAnimation.setLayout(new GridLayout(2, 2, 0, 0));
+		pnlConfigurations.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		ColorPalette colorPalette = new ColorPalette();
+		colorPalette.setUI(new SimpleColorPaletteUI());
+		colorPalette.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				model.setCurrentColor(colorPalette.getColor());
+			}
+		});
+		colorPalette.setColor(Color.RED);
+		pnlConfigurations.setPreferredSize(colorPalette.getPreferredSize());
+		pnlConfigurations.add(colorPalette);
+		pnlConfigurations.add(pnlControls);
+		pnlConfigurations.add(pnlAnimation);
+
+		FramePicker framePicker = new FramePicker(model);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.gridwidth = 2;
+		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 1;
+		//scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, (int)(framePicker.getPreferredSize().getHeight() + scrollPane.getHorizontalScrollBar().getPreferredSize().getHeight()+200)));
+		contentPane.add(scrollPane, gbc_scrollPane);
+		
+		scrollPane.setViewportView(framePicker);
 	}
 
 }

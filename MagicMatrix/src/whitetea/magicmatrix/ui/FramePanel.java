@@ -1,5 +1,6 @@
 package whitetea.magicmatrix.ui;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -22,6 +23,11 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 	//TODO bijhouden model niet nodig
 	//TODO update zonder MagicMatrix
 	private MagicMatrix model;
+
+    @Override
+    public Dimension getPreferredSize() {
+        return super.getMaximumSize();
+    }
 	
 	public FramePanel(MagicMatrix model) {
 		if(model == null)
@@ -32,12 +38,27 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 		pixels = new ColorPixel[model.getNbOfRows()][model.getNbOfColumns()];
 		addMouseListener(this);
 		setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.insets = new Insets(5,5,5,5);
+		
+		GridBagConstraints horizontalFiller = new GridBagConstraints();
+		horizontalFiller.insets = new Insets(5,5,5,5);
+		horizontalFiller.gridx = 0;
+		
+		GridBagConstraints verticalFiller = new GridBagConstraints();
+		verticalFiller.insets = new Insets(5,5,5,5);
+		verticalFiller.gridy = model.getNbOfRows();
+		
+		GridBagConstraints allFiller = new GridBagConstraints();
+		allFiller.insets = new Insets(5,5,5,5);
+		allFiller.gridx = 0;
+		allFiller.gridy = model.getNbOfRows();
+		
+		GridBagConstraints pixel = new GridBagConstraints();
+		pixel.insets = new Insets(5,5,5,5);
 		
 		for(int x = 0; x < model.getNbOfColumns(); x++) {
 			final int rowNr = x;
-			ColorFiller cf = new ColorFiller(x, true);
+			ColorFiller cf = new ColorFiller(model.getNbOfColumns(), model.getNbOfRows(), true);
+			horizontalFiller.gridy = rowNr;
 			cf.addMouseListener(new MouseAdapter() {
 				
 				@Override
@@ -63,12 +84,10 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 				}
 				
 			});
-			c.gridx = 0;
-			c.gridy = x;
-			add(cf, c);
+			add(cf, horizontalFiller);
 			for(int y = 0; y < model.getNbOfRows(); y++) {
 				final int colNr = y;
-				pixels[x][y] = new ColorPixel();
+				pixels[x][y] = new ColorPixel(model.getNbOfColumns(), model.getNbOfRows());
 				pixels[x][y].addMouseListener(new MouseAdapter() {
 					
 					@Override
@@ -89,15 +108,15 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 					}
 					
 				});
-				c.gridx = y+1;
-				c.gridy = x;
-				add(pixels[x][y], c);
+				pixel.gridx = y+1;
+				pixel.gridy = x;
+				add(pixels[x][y], pixel);
 			}
 		}
-		ColorFiller cfAll = new ColorFiller(-1, true);
-		c.gridx = 0;
-		c.gridy = model.getNbOfRows();
-		add(cfAll, c);
+		ColorFiller cfAll = new ColorFiller(model.getNbOfColumns(), model.getNbOfRows());
+		cfAll.setPreferredSize(new Dimension(10, 10));
+		cfAll.setMaximumSize(new Dimension(10, 10));
+		add(cfAll, allFiller);
 		cfAll.addMouseListener(new MouseAdapter() {
 			
 			@Override
@@ -125,7 +144,7 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 		});
 		for(int j = 0; j < model.getNbOfColumns(); j++) {
 			final int colNr = j;
-			ColorFiller cf = new ColorFiller(j, false);
+			ColorFiller cf = new ColorFiller(model.getNbOfColumns(), model.getNbOfRows(), false);
 			cf.addMouseListener(new MouseAdapter() {
 				
 				@Override
@@ -151,9 +170,8 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 				}
 				
 			});
-			c.gridx = j+1;
-			c.gridy = model.getNbOfRows();
-			add(cf, c);
+			verticalFiller.gridx = j+1;
+			add(cf, verticalFiller);
 		}
 	}
 	

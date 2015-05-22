@@ -103,19 +103,31 @@ public class MagicMatrix implements Observable {
 	}
 	
 	public void addFrame() {
-		addFrame(new Frame(nbOfRows, nbOfCols));
+		addFrame(getCurrentFrameIndex()+1);
 	}
 	
 	public void addFrame(int index) {
 		if(index < 0 || index > frames.size())
 			throw new IllegalArgumentException("The index must be a valid one.");
 		frames.add(index, new Frame(nbOfRows, nbOfCols));
+		setCurrentFrame(getCurrentFrameIndex()+1);
 		notifyObservers();
 	}
 
 	public void addFrame(Frame frame) {
+		if(frame.getNbOfColumns() != getNbOfColumns() || frame.getNbOfRows() != getNbOfRows())
+			throw new IllegalArgumentException("The dimension of the frame must be " + getNbOfRows() + "x" + getNbOfColumns() + ".");
 		frames.add(frame);
 		setCurrentFrame(getNbOfFrames()-1);
+		notifyObservers();		
+	}
+
+	public void addFrames(List<Frame> frames) { //don't use addFrame so we don't overuse the notifyAll() method
+		for(Frame frame : frames) {
+			if(frame.getNbOfColumns() != getNbOfColumns() || frame.getNbOfRows() != getNbOfRows())
+				throw new IllegalArgumentException("The dimension of the frame must be " + getNbOfRows() + "x" + getNbOfColumns() + ".");
+			this.frames.add(frame);
+		}
 		notifyObservers();		
 	}
 
@@ -144,6 +156,8 @@ public class MagicMatrix implements Observable {
 	}
 
 	public void replaceFrame(Frame newFrame) {
+		if(newFrame.getNbOfColumns() != getNbOfColumns() || newFrame.getNbOfRows() != getNbOfRows())
+			throw new IllegalArgumentException("The dimension of the frame must be " + getNbOfRows() + "x" + getNbOfColumns() + ".");
 		frames.set(getCurrentFrameIndex(), newFrame);
 		currentFrame = newFrame;
 		notifyObservers();
@@ -193,7 +207,7 @@ public class MagicMatrix implements Observable {
 	
 	public Frame getFrameAt(int index) {
 		if(!isValidFrameIndex(index))
-			throw new IllegalArgumentException("The index must be a valid one");
+			throw new IllegalArgumentException("The index must be a valid one. Given index: " + index);
 		return frames.get(index);
 	}
 	
