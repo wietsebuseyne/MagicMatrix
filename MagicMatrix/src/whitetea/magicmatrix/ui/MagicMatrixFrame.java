@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -53,6 +54,7 @@ public class MagicMatrixFrame extends JFrame {
 	private MagicMatrix model;
 	private static final int width = 8, height = 8;
 	private static String fileName = "output.png";
+	private List<JComponent> alteringComponents = new ArrayList<>();
 
 	/**
 	 * Launch the application.
@@ -117,6 +119,16 @@ public class MagicMatrixFrame extends JFrame {
 		}
 		mnLoad.addSeparator();
 		mnLoad.add(new JMenuItem("Other"));
+	}
+	
+	private void disableAlteringComponents() {
+		for(JComponent c : alteringComponents)
+			c.setEnabled(false);
+	}
+	
+	private void enableAlteringComponents() {
+		for(JComponent c : alteringComponents)
+			c.setEnabled(true);
 	}
 
 	/**
@@ -209,22 +221,26 @@ public class MagicMatrixFrame extends JFrame {
 		JLabel lblAnimation = new JLabel("Mode:");
 		pnlControls.add(lblAnimation);
 		
-		JComboBox<AnimationType> comboBox = new JComboBox<AnimationType>();
-		pnlControls.add(comboBox);
-		comboBox.setModel(new DefaultComboBoxModel<AnimationType>(AnimationType.values()));
-		comboBox.addActionListener(new ActionListener() {
+		JComboBox<AnimationType> cmbMode = new JComboBox<AnimationType>();
+		pnlControls.add(cmbMode);
+		cmbMode.setModel(new DefaultComboBoxModel<AnimationType>(AnimationType.values()));
+		cmbMode.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Animation animation = ((AnimationType)comboBox.getSelectedItem()).getAnimation();
-				if(animation == null)
+				Animation animation = ((AnimationType)cmbMode.getSelectedItem()).getAnimation();
+				if(animation == null) {
 					model.stopAnimation();
-				else if(animation instanceof CustomFramesAnimation) { //TODO remove dirty fix for custom frames
+					enableAlteringComponents();
+				} else if(animation instanceof CustomFramesAnimation) { //TODO remove dirty fix for custom frames
+					disableAlteringComponents();
 					((CustomFramesAnimation)animation).setFrames(model.getFrames());
 					((CustomFramesAnimation)animation).setStartFrame(model.getCurrentFrameIndex());
 					model.startAnimation(animation);
-				} else
+				} else{
+					disableAlteringComponents();
 					model.startAnimation(animation);
+				}
 			}
 		});
 		
@@ -309,10 +325,18 @@ public class MagicMatrixFrame extends JFrame {
 			}
 		});
 		pnlControls.add(btnShiftDown);
-		
-		JPanel pnlAnimation = new JPanel();
-		pnlAnimation.setLayout(new GridLayout(2, 2, 0, 0));
 		pnlConfigurations.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		alteringComponents.add(btnCopy);
+		alteringComponents.add(btnMoveleft);
+		alteringComponents.add(btnMoveright);
+		alteringComponents.add(btnNew);
+		alteringComponents.add(btnRemove);
+		alteringComponents.add(btnShiftDown);
+		alteringComponents.add(btnShiftLeft);
+		alteringComponents.add(btnShiftRight);
+		alteringComponents.add(btnShiftUp);
+		//TODO disable frame itself
 		
 		ColorPalette colorPalette = new ColorPalette();
 		colorPalette.setUI(new SimpleColorPaletteUI());
@@ -327,7 +351,6 @@ public class MagicMatrixFrame extends JFrame {
 		pnlConfigurations.setPreferredSize(colorPalette.getPreferredSize());
 		pnlConfigurations.add(colorPalette);
 		pnlConfigurations.add(pnlControls);
-		pnlConfigurations.add(pnlAnimation);
 
 		FramePicker framePicker = new FramePicker(model);
 		JScrollPane scrollPane = new JScrollPane();

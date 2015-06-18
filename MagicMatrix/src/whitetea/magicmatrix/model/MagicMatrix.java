@@ -30,22 +30,34 @@ public class MagicMatrix implements Observable {
 		setCurrentColor(Color.RED);
 	}
 	
+	public boolean inAnimation() {
+		return animator.inAnimation();
+	}
+	
 	public void fill() {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be altered while in animation mode. Use the replaceFrame method instead.");
 		getCurrentFrame().fill(getCurrentColor());
 		notifyObservers();
 	}
 	
 	public void colorColumn(int colNr) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be altered while in animation mode. Use the replaceFrame method instead.");
 		getCurrentFrame().fillColumn(colNr, getCurrentColor());
 		notifyObservers();
 	}
 	
 	public void colorRow(int rowNr) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be altered while in animation mode. Use the replaceFrame method instead.");
 		getCurrentFrame().fillRow(rowNr, getCurrentColor());
 		notifyObservers();
 	}
 	
 	public void colorPixel(int rowNr, int colNr) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be altered while in animation mode. Use the replaceFrame method instead.");
 		getCurrentFrame().setPixelColor(rowNr, colNr, getCurrentColor());
 		notifyObservers();
 	}
@@ -55,6 +67,8 @@ public class MagicMatrix implements Observable {
 	}
 
 	public void setCurrentColor(Color currentColor) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be altered while in animation mode. Use the replaceFrame method instead.");
 		if(currentColor == null)
 			throw new IllegalArgumentException("The given color must be effective");
 		this.currentColor = currentColor;
@@ -62,6 +76,8 @@ public class MagicMatrix implements Observable {
 	}
 
 	public void setCurrentFrame(int index) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be altered while in animation mode. Use the replaceFrame method instead.");
 		currentFrame = getFrameAt(index);
 		notifyObservers();
 	}
@@ -103,10 +119,14 @@ public class MagicMatrix implements Observable {
 	}
 	
 	public void addFrame() {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be added while in animation mode. Use the replaceFrame method instead.");
 		addFrame(getCurrentFrameIndex()+1);
 	}
 	
 	public void addFrame(int index) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be added while in animation mode. Use the replaceFrame method instead.");
 		if(index < 0 || index > frames.size())
 			throw new IllegalArgumentException("The index must be a valid one.");
 		frames.add(index, new Frame(nbOfRows, nbOfCols));
@@ -115,6 +135,8 @@ public class MagicMatrix implements Observable {
 	}
 
 	public void addFrame(Frame frame) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be added while in animation mode. Use the replaceFrame method instead.");
 		if(frame.getNbOfColumns() != getNbOfColumns() || frame.getNbOfRows() != getNbOfRows())
 			throw new IllegalArgumentException("The dimension of the frame must be " + getNbOfRows() + "x" + getNbOfColumns() + ".");
 		frames.add(frame);
@@ -123,6 +145,8 @@ public class MagicMatrix implements Observable {
 	}
 
 	public void addFrames(List<Frame> frames) { //don't use addFrame so we don't overuse the notifyAll() method
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be added while in animation mode. Use the replaceFrame method instead.");
 		for(Frame frame : frames) {
 			if(frame.getNbOfColumns() != getNbOfColumns() || frame.getNbOfRows() != getNbOfRows())
 				throw new IllegalArgumentException("The dimension of the frame must be " + getNbOfRows() + "x" + getNbOfColumns() + ".");
@@ -132,12 +156,16 @@ public class MagicMatrix implements Observable {
 	}
 
 	public void addCopy() {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be added while in animation mode. Use the replaceFrame method instead.");
 		frames.add(getCurrentFrameIndex()+1, getCurrentFrame().clone());
 		setCurrentFrame(getCurrentFrameIndex()+1);
 		notifyObservers();
 	}
 
 	public void removeFrame(int index) {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be removed while in animation mode. Use the replaceFrame method instead.");
 		if(!isValidFrameIndex(index))
 			throw new IllegalArgumentException("The index must be a valid one.");
 		if(getNbOfFrames() != 1) {
@@ -147,10 +175,14 @@ public class MagicMatrix implements Observable {
 	}
 
 	public void removeFrame() {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be removed while in animation mode. Use the replaceFrame method instead.");
 		removeFrame(getCurrentFrameIndex());
 	}
 
 	public void removeAllFrames() {
+		if(inAnimation())
+			throw new IllegalStateException("No frames can be removed while in animation mode. Use the replaceFrame method instead.");
 		frames.clear();
 		addFrame();
 	}

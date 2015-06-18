@@ -64,5 +64,9 @@ public class Animator {
 	public long getSpeed() {
 		return speed;
 	}
+	
+	public boolean inAnimation() {
+		return inAnimation;
+	}
 
 }

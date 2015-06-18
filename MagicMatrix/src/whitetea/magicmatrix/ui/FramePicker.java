@@ -2,7 +2,6 @@ package whitetea.magicmatrix.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -72,9 +71,4 @@ public class FramePicker extends JPanel implements Observer {
 		repaint();
 	}
 	
-	@Override
-	public Dimension getPreferredSize() {
-		return new FramePickerPanel(model.getCurrentFrame()).getPreferredSize();
-	}
-
 }
