@@ -23,21 +23,18 @@ public class FramePicker extends JPanel implements Observer {
 	private MagicMatrix model;
 	
 	//TODO pijltjes voor navigate, del voor verwijderen
-	
 	public FramePicker(MagicMatrix model) {
 		super(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		model.addObserver(this);
 		frames = new ArrayList<>();
 		update(model);
-		focusOn((FramePickerPanel)getComponent(0));
-		setPreferredSize(currentFrame.getPreferredSize());
 		
 		addMouseListener(new MouseAdapter() {
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
 				Component c = getComponentAt(e.getPoint());
-				if(c instanceof FramePickerPanel) {
+				if(c instanceof FramePickerPanel && !model.inAnimation()) {
 					model.setCurrentFrame(frames.indexOf((FramePickerPanel)c));
 				}
 			}
@@ -54,21 +51,27 @@ public class FramePicker extends JPanel implements Observer {
 			currentFrame.setBackground(null);
 		currentFrame = frame;
 		currentFrame.setBackground(Color.GRAY);
+		//currentFrame.requestFocus();
 	}
 
 	@Override
 	public void update(MagicMatrix updatedModel) {
 		this.model = updatedModel;
-		removeAll();
-		frames.clear();
-		for(Frame f : model.getFrames()) {
-			FramePickerPanel fpp = new FramePickerPanel(f);
-			add(fpp);
-			frames.add(fpp);
-		}
-		focusOn(model.getCurrentFrameIndex());
-		revalidate();
-		repaint();
+		java.awt.EventQueue.invokeLater(new Runnable() {
+		    public void run() {
+				removeAll();
+				frames.clear();
+				for(Frame f : model.getFrames()) {
+					FramePickerPanel fpp = new FramePickerPanel(f);
+					add(fpp);
+					frames.add(fpp);
+				}
+				focusOn(model.getCurrentFrameIndex());
+				System.out.println("Updated");
+				revalidate();
+				repaint();
+		    }
+		} );
 	}
-
+	
 }

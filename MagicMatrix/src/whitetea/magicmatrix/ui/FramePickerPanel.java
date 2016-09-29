@@ -26,6 +26,12 @@ public class FramePickerPanel extends JPanel {
 			}
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(10 + 5*frame.getNbOfColumns(), 10 + 5*frame.getNbOfRows());
+		
+	}
 
 	public Frame getFrame() {
 		return frame;

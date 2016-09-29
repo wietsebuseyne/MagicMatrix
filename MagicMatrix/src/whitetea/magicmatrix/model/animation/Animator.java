@@ -39,16 +39,20 @@ public class Animator {
 		currentTimerTask = new TimerTask() {
 			public void run()  {
 				model.replaceFrame(animation.getNextFrame(model.getCurrentFrame()));
-				model.notifyObservers();
 			}
 		};
 		timer.schedule(currentTimerTask, speed, speed);
 	}
 	
-	public void stop() {
-		currentTimerTask.cancel();
-		inAnimation = false;
-		currentTimerTask = null;
+	//Return true if stopped, false if it wasn't started
+	public boolean stop() {
+		if(inAnimation) {
+			currentTimerTask.cancel();
+			inAnimation = false;
+			currentTimerTask = null;
+			return true;
+		}
+		return false;
 	}
 	
 	public void setSpeed(long speed) {
@@ -63,6 +67,10 @@ public class Animator {
 
 	public long getSpeed() {
 		return speed;
+	}
+	
+	public boolean inAnimation() {
+		return inAnimation;
 	}
 
 }
