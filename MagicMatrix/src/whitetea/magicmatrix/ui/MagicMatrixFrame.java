@@ -229,6 +229,7 @@ public class MagicMatrixFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Animation animation = ((AnimationType)cmbMode.getSelectedItem()).getAnimation();
+				model.stopAnimation();
 				if(animation == null) {
 					model.stopAnimation();
 					enableAlteringComponents();

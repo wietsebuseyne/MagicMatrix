@@ -21,12 +21,15 @@ public class MagicMatrix implements Observable {
 	private Animator animator;
 	
 	public MagicMatrix(int nbOfRows, int nbOfCols) {
-		animator = new Animator(this);
-		frames = new ArrayList<>();
 		observers = new ArrayList<>();
+		animator = new Animator(this);
 		setNbOfRows(nbOfRows);
 		setNbOfColumns(nbOfCols);
+		
+		//Initialize frames
+		frames = new ArrayList<>();
 		addFrame();
+		
 		setCurrentColor(Color.RED);
 	}
 	
@@ -281,12 +284,12 @@ public class MagicMatrix implements Observable {
 	}
 	
 	public void stopAnimation() {
-		animator.stop();
-		System.out.println(backup.size());
-		frames = backup;
-		currentFrame = frames.get(0);
-		backup = null;
-		notifyObservers();
+		if(animator.stop()) { //Only if animation has stopped
+			frames = backup;
+			currentFrame = frames.get(0);
+			backup = null;
+			notifyObservers();
+		}
 	}
 	
 	public void setAnimationSpeed(long intervalInMs) {

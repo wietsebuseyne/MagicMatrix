@@ -15,7 +15,7 @@ import whitetea.magicmatrix.model.observer.Observer;
 
 public class FramePanel extends JPanel implements MouseListener, Observer {
 	
-	private static final long serialVersionUID = 2973984516727648424L;
+	private static final long serialVersionUID = 1L;
 	//TODO interface ColorDependable
 	private ColorPixel[][] pixels;
 	private volatile boolean mouseDown = false;
@@ -205,6 +205,4 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 	@Override
 	public void mouseExited(MouseEvent e) {}
 	
-
-
 }
