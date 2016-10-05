@@ -1,6 +1,7 @@
 package whitetea.magicmatrix.model;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -328,7 +329,21 @@ public class MagicMatrix implements Observable {
 	}
 	
 	public BufferedImage getImage() {
-		return frames.get(0).getImage();
+		BufferedImage result = new BufferedImage(
+                getNbOfFrames()*getNbOfColumns(), getNbOfRows(),
+                BufferedImage.TYPE_INT_RGB);
+		Graphics g = result.createGraphics();
+		int x = 0, y = 0;
+		for (Frame f : getFrames()) {
+			BufferedImage bi = f.getImage();
+			g.drawImage(bi, x, y, null);
+			x += getNbOfColumns();
+			if (x > result.getWidth()) {
+				x = 0;
+				y += getNbOfRows();
+			}
+		}
+		return result;
 	}
 
 }

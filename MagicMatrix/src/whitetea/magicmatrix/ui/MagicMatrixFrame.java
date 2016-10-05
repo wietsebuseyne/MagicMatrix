@@ -14,6 +14,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -44,20 +47,22 @@ import whitetea.magicmatrix.model.MagicMatrix;
 import whitetea.magicmatrix.model.animation.Animation;
 import whitetea.magicmatrix.model.animation.AnimationType;
 import whitetea.magicmatrix.model.animation.CustomFramesAnimation;
+import whitetea.magicmatrix.model.observer.Observer;
 
 import com.bric.plaf.SimpleColorPaletteUI;
 import com.bric.swing.ColorPalette;
 
-public class MagicMatrixFrame extends JFrame {
+public class MagicMatrixFrame extends JFrame implements Observer {
 
 	private static final long serialVersionUID = -506094509602640695L;
 	private JPanel contentPane;
 	private JMenu mnLoad;
 	private FramePanel framePanel;
 	private MagicMatrix model;
-	private static final int width = 8, height = 8;
-	private static String fileName = "output.png";
+	private static final int WIDTH = 8, HEIGHT = 8;
+	private String fileName = null;
 	private List<JComponent> alteringComponents = new ArrayList<>();
+	private boolean saved = true;
 
 	/**
 	 * Launch the application.
@@ -78,6 +83,7 @@ public class MagicMatrixFrame extends JFrame {
 	//TODO new thread for performance ==> add frame one by one
 	private void refreshLoadableImages() {
 		mnLoad.removeAll();
+		//TODO enkel files met juist afmetingen
     	File[] pngFiles = new File(System.getProperty("user.dir")).listFiles(new FilenameFilter() { 
 	         public boolean accept(File dir, String filename)
 	              { return filename.toLowerCase().endsWith(".png"); }
@@ -92,36 +98,38 @@ public class MagicMatrixFrame extends JFrame {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					try {
-						fileName = file.getName();
-						BufferedImage image = ImageIO.read(file);
-						model.removeAllFrames();
-						int imgHeight = image.getHeight(),
-								imgWidth = image.getWidth();
-						List<Frame> frames = new ArrayList<>();
-						for(int r = 0; r < imgHeight; r += height) {
-							for(int c = 0; c < imgWidth; c += width) {
-								Frame frame = new Frame(height, width);
-								for (int row = 0; row < height; row++) {
-									for (int col = 0; col < height; col++) {
-										frame.setPixelColor(row, col, new Color(image.getRGB(col+c, row+r)));
+					if(discardChanges()) {
+						try {
+							setFileName(file.getName());
+							BufferedImage image = ImageIO.read(file);
+							model.removeAllFrames();
+							int imgHeight = image.getHeight(),
+									imgWidth = image.getWidth();
+							List<Frame> frames = new ArrayList<>();
+							for(int r = 0; r < imgHeight; r += HEIGHT) {
+								for(int c = 0; c < imgWidth; c += WIDTH) {
+									Frame frame = new Frame(HEIGHT, WIDTH);
+									for (int row = 0; row < HEIGHT; row++) {
+										for (int col = 0; col < HEIGHT; col++) {
+											frame.setPixelColor(row, col, new Color(image.getRGB(col+c, row+r)));
+										}
 									}
+									frames.add(frame);
 								}
-								frames.add(frame);
 							}
+							model.addFrames(frames);
+							model.removeFrame(0);
+							saved = true;
+						} catch (IOException ex) {
+							ex.printStackTrace();
 						}
-						model.addFrames(frames);
-						model.removeFrame(0);
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-					
+					}					
 				}
 			});
 			mnLoad.add(mntmLoad);
 		}
-		mnLoad.addSeparator();
-		mnLoad.add(new JMenuItem("Other"));
+		//TODO mnLoad.addSeparator();
+		//TODO mnLoad.add(new JMenuItem("Other"));
 	}
 	
 	private void disableAlteringComponents() {
@@ -133,13 +141,27 @@ public class MagicMatrixFrame extends JFrame {
 		for(JComponent c : alteringComponents)
 			c.setEnabled(true);
 	}
+	
+	private boolean discardChanges() {
+		if(!isSaved()) {
+			Object[] options = {"Yes", "No"};
+			if (JOptionPane
+					.showOptionDialog(null, "The changes to the file are not saved."
+							+ "\nAre you sure you want to continue and discard the changes?",
+					"Unsaved changes",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[1])
+					== JOptionPane.NO_OPTION)
+				return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Create the frame.
 	 */
 	public MagicMatrixFrame() {
 		setTitle("MagicMatrix\r\n");
-		model = new MagicMatrix(height, width);
+		model = new MagicMatrix(HEIGHT, WIDTH);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(792, 662);
@@ -151,6 +173,19 @@ public class MagicMatrixFrame extends JFrame {
 		
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
+
+		JMenuItem mntmNew = new JMenuItem("New");
+		mntmNew.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(discardChanges()) {
+					setFileName(null);
+				    model.removeAllFrames();
+				}
+			}
+		});
+		mnFile.add(mntmNew);
 		
 		mnLoad = new JMenu("Load");
 		mnLoad.addChangeListener(new ChangeListener() {
@@ -163,35 +198,28 @@ public class MagicMatrixFrame extends JFrame {
 		refreshLoadableImages();
 		mnFile.add(mnLoad);
 
-		JMenuItem mntmNew = new JMenuItem("New");
-		mntmNew.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				//TODO ask to save if not yet done already
-			    model.removeAllFrames();
-			}
-		});
-		mnFile.add(mntmNew);
-
 		JMenuItem mntmSave = new JMenuItem("Save");
 		mntmSave.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("test");
-				try {
-				    BufferedImage bi = model.getImage();
-				    File outputfile = new File(fileName);
-				    ImageIO.write(bi, "png", outputfile);
-				} catch (IOException ex) {
-					System.out.println(ex.getMessage());
-				}
+				saveToFile();
 			}
 		});
 		mnFile.add(mntmSave);
 		
 		JMenuItem mntmSaveAs = new JMenuItem("Save as");
+		mntmSaveAs.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newName = "";
+				while(newName != null && (newName.isEmpty() || !isValidPath(newName))) {
+					newName = JOptionPane.showInputDialog("Please enter a valid filename");
+				}
+				saveToFile(newName);
+			}
+		});
 		mnFile.add(mntmSaveAs);
 		
 		contentPane = new JPanel();
@@ -387,5 +415,56 @@ public class MagicMatrixFrame extends JFrame {
 		
 		scrollPane.setViewportView(framePicker);
 	}
+	
+	public boolean isSaved() {
+		return fileName != null && saved;
+	}
+	
+	public void saveToFile() {
+		if(fileName == null)
+			fileName = "";
+		while(fileName != null && (fileName.isEmpty() || !isValidPath(fileName))) {
+			fileName = JOptionPane.showInputDialog("Please enter a valid filename");
+		}
+		saveToFile(fileName);
+	}
+	
+	public void saveToFile(String fileName) {
+		try {
+			if(fileName != null) {
+				if(fileName.length() < 4 || !fileName.substring(fileName.length()-4).equals(".png"))
+					fileName += ".png";
+				setFileName(fileName);
+			    BufferedImage bi = model.getImage();
+			    File outputfile = new File(fileName);
+			    if(ImageIO.write(bi, "png", outputfile))
+			    	saved = true;
+			}
+		} catch (IOException ex) {
+			System.out.println(ex.getMessage());
+		}
+	}
+	
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+		if(fileName == null)
+			setTitle("MagicMatrix");
+		else
+			setTitle("MagicMatrix - " + fileName);
+	}
+
+	@Override
+	public void update(MagicMatrix updatedModel) {
+		saved = false;
+	}
+	
+    public boolean isValidPath(String path) {
+        try {
+            Paths.get(path);
+        } catch (InvalidPathException |  NullPointerException ex) {
+            return false;
+        }
+        return true;
+    }
 
 }
