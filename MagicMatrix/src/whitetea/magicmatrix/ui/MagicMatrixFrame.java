@@ -163,6 +163,17 @@ public class MagicMatrixFrame extends JFrame {
 		refreshLoadableImages();
 		mnFile.add(mnLoad);
 
+		JMenuItem mntmNew = new JMenuItem("New");
+		mntmNew.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO ask to save if not yet done already
+			    model.removeAllFrames();
+			}
+		});
+		mnFile.add(mntmNew);
+
 		JMenuItem mntmSave = new JMenuItem("Save");
 		mntmSave.addActionListener(new ActionListener() {
 			
@@ -303,14 +314,6 @@ public class MagicMatrixFrame extends JFrame {
 		});
 		pnlControls.add(btnMoveright);
 		
-		JButton btnShiftRight = new JButton("Shift Right");
-		btnShiftRight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				model.shiftRight();
-			}
-		});
-		pnlControls.add(btnShiftRight);
-		
 		JButton btnShiftLeft = new JButton("Shift Left");
 		btnShiftLeft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -318,6 +321,14 @@ public class MagicMatrixFrame extends JFrame {
 			}
 		});
 		pnlControls.add(btnShiftLeft);
+		
+		JButton btnShiftRight = new JButton("Shift Right");
+		btnShiftRight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				model.shiftRight();
+			}
+		});
+		pnlControls.add(btnShiftRight);
 		
 		JButton btnShiftUp = new JButton("Shift Up");
 		btnShiftUp.addActionListener(new ActionListener() {
