@@ -1,4 +1,4 @@
-package whitetea.magicmatrix.communication.packet;
+package whitetea.magicmatrix.communication;
 
 import java.awt.Color;
 

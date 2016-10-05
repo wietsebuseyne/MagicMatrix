@@ -36,11 +36,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jssc.SerialPortException;
+import whitetea.magicmatrix.communication.packet.Mode;
+import whitetea.magicmatrix.communication.packet.SetModePacket;
 import whitetea.magicmatrix.model.Frame;
 import whitetea.magicmatrix.model.MagicMatrix;
 import whitetea.magicmatrix.model.animation.Animation;
 import whitetea.magicmatrix.model.animation.AnimationType;
 import whitetea.magicmatrix.model.animation.CustomFramesAnimation;
+import whitetea.magicmatrix.model.animation.PlasmaAnimation;
 
 import com.bric.plaf.SimpleColorPaletteUI;
 import com.bric.swing.ColorPalette;
@@ -230,6 +234,11 @@ public class MagicMatrixFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Animation animation = ((AnimationType)cmbMode.getSelectedItem()).getAnimation();
 				model.stopAnimation();
+				if((AnimationType)cmbMode.getSelectedItem() == AnimationType.PLASMA) {
+					try {
+						model.getColorduinoCommunicator().sendPacket(new SetModePacket(Mode.PLASMA));
+					} catch (SerialPortException | IllegalStateException ex) {}
+				}
 				if(animation == null) {
 					model.stopAnimation();
 					enableAlteringComponents();
@@ -238,7 +247,7 @@ public class MagicMatrixFrame extends JFrame {
 					((CustomFramesAnimation)animation).setFrames(model.getFrames());
 					((CustomFramesAnimation)animation).setStartFrame(model.getCurrentFrameIndex());
 					model.startAnimation(animation);
-				} else{
+				} else {
 					disableAlteringComponents();
 					model.startAnimation(animation);
 				}
