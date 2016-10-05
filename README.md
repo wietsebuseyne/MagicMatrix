@@ -6,6 +6,7 @@ To get your matrix up and running you need two programs:
 
 1. The Slave-software that runs on the Colorduino/Arduino
 2. The Java-based host software (= this Git repository)
+
 ##Slave software
 The Slave software is written by Lincomatic and needs to be installed on your Colorduino/Arduino board and can be downloaded [here](http://www.instructables.com/files/orig/F73/WPXO/GLJUVVD1/F73WPXOGLJUVVD1.zip). More explanation can be found [over here](http://www.instructables.com/id/Lampduino-an-8x8-RGB-Floor-Lamp/?ALLSTEPS#step17).
 ###Troubleshooting
