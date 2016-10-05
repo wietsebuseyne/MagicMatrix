@@ -44,7 +44,6 @@ import whitetea.magicmatrix.model.MagicMatrix;
 import whitetea.magicmatrix.model.animation.Animation;
 import whitetea.magicmatrix.model.animation.AnimationType;
 import whitetea.magicmatrix.model.animation.CustomFramesAnimation;
-import whitetea.magicmatrix.model.animation.PlasmaAnimation;
 
 import com.bric.plaf.SimpleColorPaletteUI;
 import com.bric.swing.ColorPalette;

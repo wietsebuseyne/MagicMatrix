@@ -1,17 +1,12 @@
 package whitetea.magicmatrix.model;
 
-import gnu.io.CommPortIdentifier;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-
-import org.omg.PortableInterceptor.SUCCESSFUL;
 
 import whitetea.magicmatrix.communication.ColorduinoCommunicator;
 import whitetea.magicmatrix.model.animation.Animation;
