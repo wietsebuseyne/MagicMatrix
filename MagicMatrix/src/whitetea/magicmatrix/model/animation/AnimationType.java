@@ -3,9 +3,10 @@ package whitetea.magicmatrix.model.animation;
 public enum AnimationType {
 
 	EDITOR("Editor", null), 
-	CUSTOM("Custom frames", new CustomFramesAnimation()), 
-	METEOR("Meteor", new MeteorAnimation()), 
+	CUSTOM("Custom frames", new CustomFramesAnimation()),
+	PLASMA("Plasma", null),
 	SNOW("Snow", new SnowAnimation()), 
+	METEOR("Meteor", new MeteorAnimation()), 
 	RANDOM("Random", new RandomAnimation());
 
 	private String string;

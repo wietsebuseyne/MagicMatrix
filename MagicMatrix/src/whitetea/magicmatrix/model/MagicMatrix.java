@@ -1,11 +1,19 @@
 package whitetea.magicmatrix.model;
 
+import gnu.io.CommPortIdentifier;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
+import org.omg.PortableInterceptor.SUCCESSFUL;
+
+import whitetea.magicmatrix.communication.ColorduinoCommunicator;
 import whitetea.magicmatrix.model.animation.Animation;
 import whitetea.magicmatrix.model.animation.Animator;
 import whitetea.magicmatrix.model.observer.Observable;
@@ -19,9 +27,28 @@ public class MagicMatrix implements Observable {
 	private List<Observer> observers;
 	private Color currentColor;
 	private Animator animator;
+	private ColorduinoCommunicator colorduinoCommunicator;
 	
 	public MagicMatrix(int nbOfRows, int nbOfCols) {
 		observers = new ArrayList<>();
+		
+		colorduinoCommunicator = new ColorduinoCommunicator();
+		switch(colorduinoCommunicator.connect()) {
+		case ColorduinoCommunicator.SUCCESSFULLY_CONNECTED:
+			addObserver(colorduinoCommunicator);
+			break;
+		case ColorduinoCommunicator.NOT_CONNECTED:
+			JOptionPane.showMessageDialog(null, "No Colorduino could be found."
+					+ "\nUse the top menu to connect it later."
+					+ "\n\nNote: Removing the serial cable from your Colorduino might help with certain connection issues");
+			break;
+		case ColorduinoCommunicator.IN_USE:
+			JOptionPane.showMessageDialog(null, "The port is already in use by a different program."
+					+ "\nClose other instances of this program and/or all other programs using the port."
+					+ "\nUse the top menu to connect it later.");
+			break;
+		}
+		
 		animator = new Animator(this);
 		setNbOfRows(nbOfRows);
 		setNbOfColumns(nbOfCols);
@@ -33,6 +60,10 @@ public class MagicMatrix implements Observable {
 		setCurrentColor(Color.RED);
 	}
 	
+	public ColorduinoCommunicator getColorduinoCommunicator() {
+		return colorduinoCommunicator;
+	}
+
 	public boolean inAnimation() {
 		return animator.inAnimation();
 	}
@@ -216,7 +247,7 @@ public class MagicMatrix implements Observable {
 	
 	public void moveFrameLeft() {
 		try {
-		moveFrame(getCurrentFrameIndex(), getCurrentFrameIndex()-1);
+			moveFrame(getCurrentFrameIndex(), getCurrentFrameIndex()-1);
 		} catch(IllegalArgumentException ex) {}
 	}
 

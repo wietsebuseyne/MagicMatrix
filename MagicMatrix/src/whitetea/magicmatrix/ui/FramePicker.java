@@ -67,7 +67,6 @@ public class FramePicker extends JPanel implements Observer {
 					frames.add(fpp);
 				}
 				focusOn(model.getCurrentFrameIndex());
-				System.out.println("Updated");
 				revalidate();
 				repaint();
 		    }
