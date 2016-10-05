@@ -1,7 +1,7 @@
 # MagicMatrix
 A controller app for an 8x8 RGB-matrix powered by a Colorduino or Arduino with Itead Studio Colors Shield.
 
-Example instructions on creating a big 8x8 RGB-matrix with individual LEDs: [http://www.instructables.com/id/Lampduino-an-8x8-RGB-Floor-Lamp/?ALLSTEPS]
+Example instructions on creating a big 8x8 RGB-matrix with individual LEDs: http://www.instructables.com/id/Lampduino-an-8x8-RGB-Floor-Lamp/?ALLSTEPS
 To get your matrix up and running you need two programs: 
 1. The Slave-software that runs on the Colorduino/Arduino
 2. The Java-based host software (= this Git repository)
