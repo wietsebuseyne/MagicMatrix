@@ -8,18 +8,12 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Robot;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -43,7 +37,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
@@ -67,9 +60,10 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 
 	private static final long serialVersionUID = -506094509602640695L;
 	private JPanel contentPane;
-	private JTextField txtCurrentColor;
+	private ColorTextField txtCurrentColor;
 	private JMenu mnLoad;
 	private FramePanel framePanel;
+	private FramePicker framePicker;
 	private MagicMatrix model;
 	private static final int WIDTH = 8, HEIGHT = 8;
 	private String fileName = null;
@@ -175,7 +169,6 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 	public MagicMatrixFrame() {
 		setTitle("MagicMatrix\r\n");
 		model = new MagicMatrix(HEIGHT, WIDTH);
-		model.addObserver(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(792, 662);
@@ -269,6 +262,21 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		gbc_pnlConfigurations.gridx = 1;
 		gbc_pnlConfigurations.gridy = 0;
 		contentPane.add(pnlConfigurations, gbc_pnlConfigurations);
+		pnlConfigurations.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		//TODO disable frame itself
+		
+		ColorPalette colorPalette = new ColorPalette();
+		colorPalette.setUI(new SimpleColorPaletteUI());
+		colorPalette.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				setColor(colorPalette.getColor());
+			}
+		});
+		colorPalette.setColor(Color.RED);
+		pnlConfigurations.setPreferredSize(colorPalette.getPreferredSize());
+		pnlConfigurations.add(colorPalette);
 		
 		JPanel pnlControls = new JPanel();
 		GridLayout grid = new GridLayout(8, 2, 0, 0);
@@ -280,13 +288,14 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.addFrame();
+				framePicker.requestFocus();
 			}
 		});
 		
 		JLabel lblCurrentColor = new JLabel("Current Color:");
 		pnlControls.add(lblCurrentColor);
 		
-		txtCurrentColor = new JTextField();
+		txtCurrentColor = new ColorTextField(model.getCurrentColor());
 		txtCurrentColor.addActionListener(new ActionListener() {
 			
 			@Override
@@ -351,6 +360,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.removeFrame();
+				framePicker.requestFocus();
 			}
 		});
 		pnlControls.add(btnRemove);
@@ -359,6 +369,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnMoveleft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.moveFrameLeft();
+				framePicker.requestFocus();
 			}
 		});
 		
@@ -366,6 +377,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnCopy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.addCopy();
+				framePicker.requestFocus();
 			}
 		});
 		pnlControls.add(btnCopy);
@@ -378,6 +390,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnMoveright.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.moveFrameRight();
+				framePicker.requestFocus();
 			}
 		});
 		pnlControls.add(btnMoveright);
@@ -386,6 +399,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnShiftLeft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.shiftLeft();
+				framePicker.requestFocus();
 			}
 		});
 		pnlControls.add(btnShiftLeft);
@@ -394,6 +408,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnShiftRight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.shiftRight();
+				framePicker.requestFocus();
 			}
 		});
 		pnlControls.add(btnShiftRight);
@@ -402,6 +417,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnShiftUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.shiftUp();
+				framePicker.requestFocus();
 			}
 		});
 		pnlControls.add(btnShiftUp);
@@ -410,10 +426,10 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		btnShiftDown.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.shiftDown();
+				framePicker.requestFocus();
 			}
 		});
 		pnlControls.add(btnShiftDown);
-		pnlConfigurations.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		alteringComponents.add(btnCopy);
 		alteringComponents.add(btnMoveleft);
@@ -424,23 +440,23 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		alteringComponents.add(btnShiftLeft);
 		alteringComponents.add(btnShiftRight);
 		alteringComponents.add(btnShiftUp);
-		//TODO disable frame itself
-		
-		ColorPalette colorPalette = new ColorPalette();
-		colorPalette.setUI(new SimpleColorPaletteUI());
-		colorPalette.addChangeListener(new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				setColor(colorPalette.getColor());
-			}
-		});
-		colorPalette.setColor(Color.RED);
-		pnlConfigurations.setPreferredSize(colorPalette.getPreferredSize());
-		pnlConfigurations.add(colorPalette);
 		pnlConfigurations.add(pnlControls);
+		
+		//TODO replace colors
+		/*JPanel pnlReplace = new JPanel();
+		pnlConfigurations.add(pnlReplace);
+		pnlReplace.setLayout(new GridLayout(1,3));
 
-		FramePicker framePicker = new FramePicker(model);
+		GridBagConstraints c = new GridBagConstraints();
+		pnlReplace.add(new JLabel("Replace"));
+		pnlReplace.add(new JLabel("By"));
+		pnlReplace.add(new JLabel());
+		
+		pnlReplace.add(new ColorTextField());
+		pnlReplace.add(new ColorTextField());
+		pnlReplace.add(new JButton("+"));*/
+
+		framePicker = new FramePicker(model);
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -454,6 +470,8 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
 		scrollPane.setViewportView(framePicker);
+		
+		model.addObserver(this);
 	}
 	
 	public boolean isSaved() {
@@ -496,18 +514,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 	@Override
 	public void update(MagicMatrix updatedModel) {
 		saved = false;
-		Color c = updatedModel.getCurrentColor();
-		txtCurrentColor.setBackground(c);
-		txtCurrentColor.setText(String.format("%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue()));
-		txtCurrentColor.setForeground((perceivedBrightness(c) > 130 ? Color.BLACK : Color.WHITE));
-
-	}
-	
-	private int perceivedBrightness(Color c) {
-	    return (int)Math.sqrt(
-	    c.getRed() * c.getRed() * .299 +
-	    c.getGreen() * c.getGreen() * .587 +
-	    c.getBlue() * c.getBlue() * .114);
+		txtCurrentColor.setBackground(updatedModel.getCurrentColor());
 	}
 	
     public boolean isValidPath(String path) {
@@ -522,6 +529,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
     public void setColor(Color c) {
 		model.setCurrentColor(c);
     }
+    
     /*
  // update the selected color on mouse press, dragged, and release
     public void mousePressed(MouseEvent evt) {

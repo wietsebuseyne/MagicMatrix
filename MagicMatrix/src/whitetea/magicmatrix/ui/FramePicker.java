@@ -3,6 +3,8 @@ package whitetea.magicmatrix.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ public class FramePicker extends JPanel implements Observer {
 	//TODO pijltjes voor navigate, del voor verwijderen
 	public FramePicker(MagicMatrix model) {
 		super(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		setFocusable(true);
 		model.addObserver(this);
 		frames = new ArrayList<>();
 		update(model);
@@ -33,11 +36,30 @@ public class FramePicker extends JPanel implements Observer {
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
+				requestFocus();
 				Component c = getComponentAt(e.getPoint());
 				if(c instanceof FramePickerPanel && !model.inAnimation()) {
 					model.setCurrentFrame(frames.indexOf((FramePickerPanel)c));
 				}
 			}
+		});
+
+		
+		addKeyListener(new KeyAdapter() {
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(!model.inAnimation())
+					switch (e.getKeyCode()) {
+					case KeyEvent.VK_LEFT:
+						model.setCurrentFrame((model.getCurrentFrameIndex()+model.getNbOfFrames()-1) % (model.getNbOfFrames()));
+						break;
+					case KeyEvent.VK_RIGHT:
+						model.setCurrentFrame((model.getCurrentFrameIndex()+1) % model.getNbOfFrames());
+						break;
+					}
+			}
+			
 		});
 	}
 	
