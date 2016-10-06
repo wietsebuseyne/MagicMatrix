@@ -63,9 +63,12 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 				
 				@Override
 				public void mousePressed(MouseEvent e) {
-				    if (e.getButton() == MouseEvent.BUTTON1)
+				    switch(e.getButton()) {
+				    case MouseEvent.BUTTON1:
 				        mouseDown = true;
-			        color();
+				        color();
+				        break;
+				    }
 				}
 				@Override
 				public void mouseEntered(MouseEvent e) {
@@ -92,9 +95,10 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 					
 					@Override
 					public void mousePressed(MouseEvent e) {
-					    if (e.getButton() == MouseEvent.BUTTON1)
+					    if (e.getButton() == MouseEvent.BUTTON1) {
 					        mouseDown = true;
-					    model.colorPixel(rowNr, colNr);
+					        model.colorPixel(rowNr, colNr);
+					    }
 					}
 					@Override
 					public void mouseEntered(MouseEvent e) {
@@ -103,8 +107,14 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 					}
 					@Override
 					public void mouseReleased(MouseEvent e) {
-					    if (e.getButton() == MouseEvent.BUTTON1)
+					    switch(e.getButton()) {
+					    case MouseEvent.BUTTON1:
 					        mouseDown = false;
+					        break;
+					    case MouseEvent.BUTTON3:
+					    	model.setCurrentColor(model.getPixelColor(rowNr, colNr));
+					    	break;
+					    }
 					}
 					
 				});
@@ -121,9 +131,10 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
-			    if (e.getButton() == MouseEvent.BUTTON1)
+			    if (e.getButton() == MouseEvent.BUTTON1) {
 			        mouseDown = true;
-		        color();
+			        color();
+			    }
 			}
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -149,9 +160,10 @@ public class FramePanel extends JPanel implements MouseListener, Observer {
 				
 				@Override
 				public void mousePressed(MouseEvent e) {
-				    if (e.getButton() == MouseEvent.BUTTON1)
+				    if (e.getButton() == MouseEvent.BUTTON1) {
 				        mouseDown = true;
-			        color();
+				        color();
+				    }
 				}
 				@Override
 				public void mouseEntered(MouseEvent e) {

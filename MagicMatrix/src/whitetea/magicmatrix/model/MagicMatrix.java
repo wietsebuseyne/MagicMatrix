@@ -29,6 +29,7 @@ public class MagicMatrix implements Observable {
 		observers = new ArrayList<>();
 		
 		colorduinoCommunicator = new ColorduinoCommunicator();
+		/*TODO
 		switch(colorduinoCommunicator.connect()) {
 		case ColorduinoCommunicator.SUCCESSFULLY_CONNECTED:
 			addObserver(colorduinoCommunicator);
@@ -43,7 +44,7 @@ public class MagicMatrix implements Observable {
 					+ "\nClose other instances of this program and/or all other programs using the port."
 					+ "\nUse the top menu to connect it later.");
 			break;
-		}
+		}*/
 		
 		animator = new Animator(this);
 		setNbOfRows(nbOfRows);

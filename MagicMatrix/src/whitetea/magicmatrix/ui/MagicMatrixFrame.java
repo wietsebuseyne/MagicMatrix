@@ -1,5 +1,6 @@
 package whitetea.magicmatrix.ui;
 
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -7,9 +8,18 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -33,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
@@ -56,13 +67,15 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 
 	private static final long serialVersionUID = -506094509602640695L;
 	private JPanel contentPane;
+	private JTextField txtCurrentColor;
 	private JMenu mnLoad;
 	private FramePanel framePanel;
 	private MagicMatrix model;
 	private static final int WIDTH = 8, HEIGHT = 8;
 	private String fileName = null;
 	private List<JComponent> alteringComponents = new ArrayList<>();
-	private boolean saved = true;
+	private boolean saved = true, selectingColor = false;
+    private Robot robot;
 
 	/**
 	 * Launch the application.
@@ -162,11 +175,18 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 	public MagicMatrixFrame() {
 		setTitle("MagicMatrix\r\n");
 		model = new MagicMatrix(HEIGHT, WIDTH);
+		model.addObserver(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(792, 662);
 		setMinimumSize(new Dimension(600, 475));
 		setLocationRelativeTo(null);
+		
+		try {
+			robot = new Robot();
+		} catch (AWTException e1) {
+			e1.printStackTrace();
+		}
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -251,6 +271,10 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		contentPane.add(pnlConfigurations, gbc_pnlConfigurations);
 		
 		JPanel pnlControls = new JPanel();
+		GridLayout grid = new GridLayout(8, 2, 0, 0);
+		grid.setHgap(5);
+		grid.setVgap(5);
+		pnlControls.setLayout(grid);
 		
 		JButton btnNew = new JButton("Add");
 		btnNew.addActionListener(new ActionListener() {
@@ -258,7 +282,23 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 				model.addFrame();
 			}
 		});
-		pnlControls.setLayout(new GridLayout(7, 2, 0, 0));
+		
+		JLabel lblCurrentColor = new JLabel("Current Color:");
+		pnlControls.add(lblCurrentColor);
+		
+		txtCurrentColor = new JTextField();
+		txtCurrentColor.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					model.setCurrentColor(Color.decode("#" + txtCurrentColor.getText()));
+				} catch (NumberFormatException ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+		pnlControls.add(txtCurrentColor);
 		
 		JLabel lblAnimation = new JLabel("Mode:");
 		pnlControls.add(lblAnimation);
@@ -392,7 +432,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				model.setCurrentColor(colorPalette.getColor());
+				setColor(colorPalette.getColor());
 			}
 		});
 		colorPalette.setColor(Color.RED);
@@ -456,6 +496,18 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 	@Override
 	public void update(MagicMatrix updatedModel) {
 		saved = false;
+		Color c = updatedModel.getCurrentColor();
+		txtCurrentColor.setBackground(c);
+		txtCurrentColor.setText(String.format("%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue()));
+		txtCurrentColor.setForeground((perceivedBrightness(c) > 130 ? Color.BLACK : Color.WHITE));
+
+	}
+	
+	private int perceivedBrightness(Color c) {
+	    return (int)Math.sqrt(
+	    c.getRed() * c.getRed() * .299 +
+	    c.getGreen() * c.getGreen() * .587 +
+	    c.getBlue() * c.getBlue() * .114);
 	}
 	
     public boolean isValidPath(String path) {
@@ -466,5 +518,35 @@ public class MagicMatrixFrame extends JFrame implements Observer {
         }
         return true;
     }
+    
+    public void setColor(Color c) {
+		model.setCurrentColor(c);
+    }
+    /*
+ // update the selected color on mouse press, dragged, and release
+    public void mousePressed(MouseEvent evt) {
+    	Point p = evt.getLocationOnScreen();
+    	setSelectedColor(robot.getPixelColor(p.x, p.y));
+    }
+    public void mouseDragged(MouseEvent evt) {
+    	Point p = evt.getLocationOnScreen();
+    	setSelectedColor(robot.getPixelColor(p.x, p.y));
+    }
+    // for released we want to hide the frame as well
+    public void mouseReleased(MouseEvent evt) {
+    	Point p = evt.getLocationOnScreen();
+    	setSelectedColor(robot.getPixelColor(p.x, p.y));
+    }
+    // update both the display label and the component that was passed in
+    public void setSelectedColor(Color color) {
+    	model.setCurrentColor(color);
+    	btnCurrentColor.setBackground(color);
+    }
+
+    // no-ops for the rest of the mouse-event listener
+    public void mouseClicked(MouseEvent evt) { }
+    public void mouseEntered(MouseEvent evt) { }
+    public void mouseExited(MouseEvent evt) { }
+    public void mouseMoved(MouseEvent evt) { }*/
 
 }
