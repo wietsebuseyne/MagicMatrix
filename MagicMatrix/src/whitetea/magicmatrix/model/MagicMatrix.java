@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import whitetea.magicmatrix.communication.ColorduinoCommunicator;
 import whitetea.magicmatrix.model.animation.Animation;
 import whitetea.magicmatrix.model.animation.Animator;

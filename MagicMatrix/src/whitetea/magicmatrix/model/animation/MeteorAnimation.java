@@ -1,8 +1,6 @@
 package whitetea.magicmatrix.model.animation;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import whitetea.magicmatrix.model.Frame;
@@ -10,7 +8,7 @@ import whitetea.magicmatrix.model.Frame;
 public class MeteorAnimation extends SnowAnimation {
 	
 	//TODO save locations of white pixels and add shine after these pixels
-	private List<Location> locations = new ArrayList<Location>();
+	//private List<Location> locations = new ArrayList<Location>();
 
 	@Override
 	public Frame getNextFrame(Frame currentFrame) {
@@ -26,7 +24,7 @@ public class MeteorAnimation extends SnowAnimation {
 		return frame;
 	}
 	
-	private class Location {
+	/*private class Location {
 		public int x;
 		public int y;
 		
@@ -35,6 +33,6 @@ public class MeteorAnimation extends SnowAnimation {
 			this.y = y;
 		}
 		
-	}
+	}*/
 
 }

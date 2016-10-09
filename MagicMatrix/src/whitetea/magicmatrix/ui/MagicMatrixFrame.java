@@ -1,6 +1,5 @@
 package whitetea.magicmatrix.ui;
 
-import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -9,11 +8,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -68,8 +64,7 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 	private static final int WIDTH = 8, HEIGHT = 8;
 	private String fileName = null;
 	private List<JComponent> alteringComponents = new ArrayList<>();
-	private boolean saved = true, selectingColor = false;
-    private Robot robot;
+	private boolean saved = true;
 
 	/**
 	 * Launch the application.
@@ -174,12 +169,6 @@ public class MagicMatrixFrame extends JFrame implements Observer {
 		setSize(792, 662);
 		setMinimumSize(new Dimension(600, 475));
 		setLocationRelativeTo(null);
-		
-		try {
-			robot = new Robot();
-		} catch (AWTException e1) {
-			e1.printStackTrace();
-		}
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
