@@ -12,4 +12,4 @@ The Slave software is written by Lincomatic and needs to be installed on your Co
 ###Troubleshooting
 To ensure correct working of the slave software, it should be uploaded to the board **with the [Arduino 022 software, which can be found on this page.](https://www.arduino.cc/en/Main/OldSoftwareReleases)** This has something to do with a change in the size of the serial buffer size. 
 ##Host software
-Download the JAR-file from this repository and run on your computer after connecting your matrix.
+Download the [JAR-file from this repository](https://github.com/wietsebuseyne/MagicMatrix/releases/) and run on your computer after connecting your matrix.
